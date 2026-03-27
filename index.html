@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adam Hernandez — Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #111111;
+    --surface: #1a1a1a;
+    --surface2: #222222;
+    --border: #2a2a2a;
+    --divider: #2e2e2e;
+    --text: #d4d4d4;
+    --muted: #606060;
+    --accent: #e8e8e8;
+    --tag-bg: #181818;
+    --hover-bg: #1d1d1d;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    line-height: 1.7;
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  /* ── CURSOR ── */
+  .cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    left: 0; top: 0;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.1s;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 32px; height: 32px;
+    border: 1px solid rgba(232,232,232,0.3);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    left: 0; top: 0;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: width 0.25s ease, height 0.25s ease, opacity 0.3s, border-color 0.25s;
+  }
+  .cursor.active { transform: translate(-50%,-50%) scale(0.6); }
+  .cursor-ring.active { width: 52px; height: 52px; border-color: rgba(232,232,232,0.55); }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 3rem;
+    background: rgba(17,17,17,0.97);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .nav-center {
+    display: flex;
+    list-style: none;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .nav-center li a {
+    display: block;
+    padding: 0.45rem 1.1rem;
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: color 0.2s, background 0.2s;
+    border-right: 1px solid var(--border);
+  }
+  .nav-center li:last-child a { border-right: none; }
+  .nav-center li a:hover,
+  .nav-center li a.active { color: var(--accent); background: var(--surface); }
+  .nav-pill {
+    display: inline-block;
+    padding: 0.4rem 1.1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    background: var(--accent);
+    color: var(--bg);
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+  }
+  .nav-pill:hover { opacity: 0.82; }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6rem 3rem 5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .hero-grid-overlay {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(232,232,232,0.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,232,232,0.022) 1px, transparent 1px);
+    background-size: 56px 56px;
+    pointer-events: none;
+    z-index: 0;
+    mask-image: radial-gradient(ellipse 65% 55% at 35% 40%, black 20%, transparent 100%);
+  }
+  .hero-eyebrow {
+    font-size: 0.67rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.75rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative; z-index: 1;
+  }
+  .hero-eyebrow::before { content: ''; display: inline-block; width: 28px; height: 1px; background: var(--muted); flex-shrink: 0; }
+  .hero-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(4rem, 10vw, 9rem);
+    line-height: 0.92;
+    letter-spacing: -0.025em;
+    color: var(--accent);
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.3s;
+    position: relative; z-index: 1;
+  }
+  .hero-name .sub {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+    font-size: clamp(0.85rem, 1.8vw, 1.1rem);
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    margin-top: 1.25rem;
+    font-style: italic;
+  }
+  .hero-desc {
+    max-width: 480px;
+    color: var(--muted);
+    font-size: 0.8rem;
+    line-height: 1.9;
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.45s;
+    position: relative; z-index: 1;
+  }
+  .hero-cta {
+    display: flex; gap: 0.75rem; flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.6s;
+    position: relative; z-index: 1;
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    padding: 0.7rem 1.6rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.67rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    background: transparent;
+    cursor: none;
+    transition: all 0.22s ease;
+    display: inline-block;
+  }
+  .btn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .btn-solid { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .btn-solid:hover { opacity: 0.85; background: var(--accent); color: var(--bg); }
+  .btn-ghost { color: var(--muted); border-color: var(--border); }
+  .btn-ghost:hover { color: var(--accent); border-color: #444; background: transparent; }
+
+  /* ── SECTION STRUCTURE ── */
+  /* Each section gets a full-bleed top border as a hard visual break */
+  .section-block {
+    border-top: 1px solid var(--divider);
+    /* subtle accent line just inside the border */
+    box-shadow: 0 -1px 0 0 rgba(232,232,232,0.04);
+  }
+  section {
+    padding: 7rem 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* ── SECTION HEADING ── */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1.25rem;
+    margin-bottom: 3.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+    padding-top: 0.3rem;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  /* ── ABOUT ── */
+  .about-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 5rem; align-items: start; }
+  .about-heading {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    line-height: 1.1;
+    margin-bottom: 1.75rem;
+    color: var(--accent);
+  }
+  .about-text { color: var(--muted); font-size: 0.8rem; line-height: 1.95; margin-bottom: 1rem; }
+  .about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .stat { background: var(--bg); padding: 1.5rem; }
+  .stat-number { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.75rem; color: var(--accent); line-height: 1; margin-bottom: 0.5rem; }
+  .stat-label { font-size: 0.62rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; line-height: 1.5; }
+
+  /* ── SKILLS ── */
+  .skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .skill-group { background: var(--bg); padding: 2rem; }
+  .skill-group-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem; border-bottom: 1px solid var(--border);
+  }
+  .skill-list { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .skill-tag {
+    background: var(--tag-bg); border: 1px solid var(--border);
+    padding: 0.28rem 0.7rem; font-size: 0.68rem; color: var(--muted); transition: all 0.2s;
+  }
+  .skill-tag:hover { border-color: #3a3a3a; color: var(--text); }
+
+  /* ── CERTIFICATIONS ── */
+  .cert-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .cert-card { background: var(--bg); padding: 2.25rem; transition: background 0.2s; }
+  .cert-card:hover { background: var(--hover-bg); }
+  .cert-issuer { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.6rem; }
+  .cert-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; color: var(--accent); margin-bottom: 0.6rem; line-height: 1.3; }
+  .cert-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.85; }
+
+  /* ── PROJECTS ── */
+  .projects-grid { display: grid; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .project-card {
+    background: var(--bg); padding: 2.5rem;
+    display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: start;
+    transition: background 0.2s;
+  }
+  .project-card:hover { background: var(--hover-bg); }
+  .project-num { font-size: 0.63rem; color: var(--muted); letter-spacing: 0.15em; margin-bottom: 0.85rem; }
+  .project-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.2rem; color: var(--accent); margin-bottom: 0.3rem; }
+  .project-meta { font-size: 0.68rem; color: var(--muted); margin-bottom: 1rem; }
+  .project-desc { color: var(--muted); font-size: 0.79rem; line-height: 1.9; margin-bottom: 1.25rem; padding-left: 1rem; }
+  .project-desc li { margin-bottom: 0.3rem; }
+  .project-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .project-tag { background: var(--tag-bg); border: 1px solid var(--border); padding: 0.22rem 0.6rem; font-size: 0.65rem; color: var(--muted); }
+  .project-badge {
+    align-self: flex-start; background: var(--surface2); border: 1px solid var(--border);
+    padding: 0.45rem 0.85rem; font-size: 0.63rem; color: var(--accent);
+    letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;
+  }
+
+  /* ── TIMELINE ── */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--border); }
+  .timeline-item { position: relative; margin-bottom: 2.75rem; padding-bottom: 2.75rem; border-bottom: 1px solid var(--border); }
+  .timeline-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .timeline-dot { position: absolute; left: -2.32rem; top: 0.45rem; width: 7px; height: 7px; background: var(--accent); border-radius: 50%; }
+  .timeline-meta { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.35rem; flex-wrap: wrap; gap: 0.5rem; }
+  .timeline-role { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.98rem; color: var(--accent); }
+  .timeline-date { font-size: 0.66rem; color: var(--muted); letter-spacing: 0.1em; }
+  .timeline-org { font-size: 0.74rem; color: var(--muted); margin-bottom: 0.85rem; }
+  .timeline-desc { font-size: 0.79rem; color: var(--muted); line-height: 1.9; padding-left: 1rem; }
+  .timeline-desc li { margin-bottom: 0.3rem; }
+  .timeline-section-heading {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem; font-weight: 700;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--muted);
+    margin: 3rem 0 2rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .timeline-section-heading:first-child { margin-top: 0; }
+  .timeline-section-heading::after { content: ''; flex: 1; height: 1px; background: var(--border); max-width: 36px; }
+
+  /* ── LEADERSHIP ── */
+  .leadership-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .leadership-card { background: var(--bg); padding: 2.25rem; transition: background 0.2s; }
+  .leadership-card:hover { background: var(--hover-bg); }
+  .leadership-org { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+  .leadership-role { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; color: var(--accent); margin-bottom: 0.3rem; }
+  .leadership-date { font-size: 0.67rem; color: var(--muted); margin-bottom: 0.85rem; letter-spacing: 0.06em; }
+  .leadership-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.85; }
+
+  /* ── CONTACT ── */
+  .contact-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+  .contact-heading { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1.0; color: var(--accent); margin-bottom: 1.25rem; }
+  .contact-sub { color: var(--muted); font-size: 0.8rem; line-height: 1.9; margin-bottom: 2rem; }
+  .contact-links { display: flex; flex-direction: column; border: 1px solid var(--border); }
+  .contact-link {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.1rem 1.5rem; text-decoration: none; color: var(--muted);
+    font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+    border-bottom: 1px solid var(--border); transition: all 0.2s;
+  }
+  .contact-link:last-child { border-bottom: none; }
+  .contact-link:hover { background: var(--surface); color: var(--accent); padding-left: 2rem; }
+  .contact-link::after { content: '↗'; font-size: 0.85rem; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 3rem;
+    display: flex; justify-content: space-between; align-items: center;
+    max-width: 1100px; margin: 0 auto;
+    color: var(--muted); font-size: 0.66rem; letter-spacing: 0.08em;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.65s ease, transform 0.65s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── MOBILE ── */
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-center { display: none; }
+    #hero, section { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .about-grid, .contact-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+    .skills-grid, .cert-grid, .leadership-grid { grid-template-columns: 1fr; }
+    .project-card { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="hero-grid-overlay"></div>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="#hero" class="nav-logo">AH.</a>
+  <ul class="nav-center">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#leadership">Leadership</a></li>
+  </ul>
+  <a href="mailto:adam.a.hernandez24@gmail.com" class="nav-pill">Contact</a>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <p class="hero-eyebrow">Open to internships &amp; research opportunities</p>
+  <h1 class="hero-name">
+    Adam<br>Hernandez
+    <span class="sub">CS &amp; Cognitive Science @ RPI</span>
+  </h1>
+  <p class="hero-desc">
+    Aspiring software and AI engineer with experience in machine learning research,
+    robotics systems, and algorithmic problem solving. Passionate about building
+    scalable, data-driven technologies that connect theory with real-world impact.
+  </p>
+  <div class="hero-cta">
+    <a href="#projects" class="btn btn-solid">View Projects</a>
+    <a href="#experience" class="btn btn-ghost">Research &amp; Work</a>
+    <a href="mailto:adam.a.hernandez24@gmail.com" class="btn btn-ghost">Get In Touch</a>
+  </div>
+</section>
+
+<!-- ── ABOUT ── -->
+<div class="section-block">
+  <section id="about">
+    <div class="section-header reveal">
+      <span class="section-num">01</span>
+      <h2 class="section-title">About</h2>
+    </div>
+    <div class="about-grid reveal">
+      <div>
+        <h3 class="about-heading">Builder.<br>Researcher.<br>Problem Solver.</h3>
+        <p class="about-text">
+          I'm a freshman at Rensselaer Polytechnic Institute studying Computer Science and
+          Cognitive Science. My work spans ML research, clinical AI, and competitive robotics —
+          with a deep interest in how intelligent systems can solve real human problems.
+        </p>
+        <p class="about-text">
+          From training GANs to building ER triage decision-support tools with GPT-4, I love
+          working at the intersection of engineering and impact. Fluent in Spanish and committed
+          to mentorship and community.
+        </p>
+      </div>
+      <div class="about-stats">
+        <div class="stat">
+          <div class="stat-number">🥇</div>
+          <div class="stat-label">1st Place Nationally — Botball 2024</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">3rd</div>
+          <div class="stat-label">Place Globally — Botball 2024</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">1,911</div>
+          <div class="stat-label">Items Donated — Clothing Drive</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">🦅</div>
+          <div class="stat-label">Eagle Scout — Dec 2022</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ── SKILLS ── -->
+<div class="section-block">
+  <section id="skills">
+    <div class="section-header reveal">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Skills</h2>
+    </div>
+    <div class="skills-grid reveal">
+      <div class="skill-group">
+        <div class="skill-group-title">Languages &amp; Tools</div>
+        <ul class="skill-list">
+          <li class="skill-tag">Python</li>
+          <li class="skill-tag">C++</li>
+          <li class="skill-tag">C</li>
+          <li class="skill-tag">Java</li>
+          <li class="skill-tag">Git</li>
+          <li class="skill-tag">Hugging Face</li>
+          <li class="skill-tag">Spanish</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <div class="skill-group-title">ML &amp; AI Libraries</div>
+        <ul class="skill-list">
+          <li class="skill-tag">TensorFlow</li>
+          <li class="skill-tag">Scikit-Learn</li>
+          <li class="skill-tag">Pandas</li>
+          <li class="skill-tag">NumPy</li>
+          <li class="skill-tag">OpenCV</li>
+          <li class="skill-tag">Pillow</li>
+          <li class="skill-tag">GPT-4 API</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <div class="skill-group-title">Core Concepts</div>
+        <ul class="skill-list">
+          <li class="skill-tag">Machine Learning</li>
+          <li class="skill-tag">Deep Learning</li>
+          <li class="skill-tag">Neural Networks</li>
+          <li class="skill-tag">Prompt Engineering</li>
+          <li class="skill-tag">Sentiment Analysis</li>
+          <li class="skill-tag">Computer Vision</li>
+          <li class="skill-tag">Data Preprocessing</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ── CERTIFICATIONS ── -->
+<div class="section-block">
+  <section id="certifications">
+    <div class="section-header reveal">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Certifications</h2>
+    </div>
+    <div class="cert-grid reveal">
+      <div class="cert-card">
+        <div class="cert-issuer">The Coding School</div>
+        <div class="cert-name">Artificial Intelligence Camp</div>
+        <p class="cert-desc">
+          Intensive program covering foundational and applied AI concepts including supervised learning,
+          neural networks, and real-world ML applications. Hands-on training in building and evaluating
+          AI models.
+        </p>
+      </div>
+      <div class="cert-card">
+        <div class="cert-issuer">PACT Program</div>
+        <div class="cert-name">Program in Algorithmic and Combinatorial Thinking</div>
+        <p class="cert-desc">
+          Rigorous academic program focused on algorithmic problem solving, combinatorics, graph theory,
+          and discrete mathematics — foundational skills for competitive programming and CS research.
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ── PROJECTS ── -->
+<div class="section-block">
+  <section id="projects">
+    <div class="section-header reveal">
+      <span class="section-num">04</span>
+      <h2 class="section-title">Projects</h2>
+    </div>
+    <div class="projects-grid reveal">
+
+      <div class="project-card">
+        <div>
+          <div class="project-num">01</div>
+          <div class="project-name">Xavier HS Robotics — Botball 2024</div>
+          <div class="project-meta">Lead Programmer · Jan 2024 – May 2024</div>
+          <ul class="project-desc">
+            <li>Directed software development for an autonomous competition robot, leading the team to <strong style="color:var(--text)">1st place nationally and 3rd place globally</strong> at Botball 2024.</li>
+            <li>Designed and debugged C-based control logic integrating sensor fusion and motion algorithms, achieving &gt;95% autonomous task success rate.</li>
+            <li>Mentored peers on embedded systems and real-time debugging under tournament pressure.</li>
+          </ul>
+          <div class="project-tags">
+            <span class="project-tag">C</span>
+            <span class="project-tag">Embedded Systems</span>
+            <span class="project-tag">Sensor Fusion</span>
+            <span class="project-tag">Robotics</span>
+            <span class="project-tag">Autonomous Control</span>
+          </div>
+        </div>
+        <div class="project-badge">🥇 1st Nationally</div>
+      </div>
+
+      <div class="project-card">
+        <div>
+          <div class="project-num">02</div>
+          <div class="project-name">Road Drawing Program</div>
+          <div class="project-meta">Independent Project · Apr 2024 – Jun 2024</div>
+          <ul class="project-desc">
+            <li>Built a U-Net convolutional neural network to generate realistic satellite-style road imagery from input masks sourced from Kaggle datasets.</li>
+            <li>Created preprocessing and augmentation pipelines using TensorFlow, OpenCV, and Pillow to improve output resolution.</li>
+            <li>Tuned training parameters and loss functions to minimize reconstruction error, achieving smoother edge detection and improved image fidelity.</li>
+          </ul>
+          <div class="project-tags">
+            <span class="project-tag">Python</span>
+            <span class="project-tag">TensorFlow</span>
+            <span class="project-tag">U-Net / CNN</span>
+            <span class="project-tag">OpenCV</span>
+            <span class="project-tag">Computer Vision</span>
+          </div>
+        </div>
+        <div class="project-badge">CNN / Vision</div>
+      </div>
+
+      <div class="project-card">
+        <div>
+          <div class="project-num">03</div>
+          <div class="project-name">Art GAN</div>
+          <div class="project-meta">Independent Project · Sep 2021 – Jan 2023</div>
+          <ul class="project-desc">
+            <li>Designed and trained a Generative Adversarial Network using TensorFlow to generate original artworks from Unsplash images.</li>
+            <li>Experimented with custom architectures and loss functions, enhancing visual diversity and reducing mode collapse in generated samples.</li>
+            <li>Curated dataset pipelines and built visualization tools to compare generated vs. real art, strengthening model interpretability.</li>
+          </ul>
+          <div class="project-tags">
+            <span class="project-tag">Python</span>
+            <span class="project-tag">TensorFlow</span>
+            <span class="project-tag">GAN</span>
+            <span class="project-tag">Generative AI</span>
+            <span class="project-tag">Deep Learning</span>
+          </div>
+        </div>
+        <div class="project-badge">Generative AI</div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- ── EXPERIENCE ── -->
+<div class="section-block">
+  <section id="experience">
+    <div class="section-header reveal">
+      <span class="section-num">05</span>
+      <h2 class="section-title">Experience</h2>
+    </div>
+    <div class="timeline reveal">
+
+      <div class="timeline-section-heading">Research</div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-meta">
+          <div class="timeline-role">Student Researcher</div>
+          <div class="timeline-date">Jun 2025 — Aug 2025</div>
+        </div>
+        <div class="timeline-org">OLAB at NYU Langone — New York, NY</div>
+        <ul class="timeline-desc">
+          <li>Developed a clinical decision-support prototype powered by GPT-4.1 APIs, optimizing ER triage recommendations using structured patient data.</li>
+          <li>Applied prompt engineering and preprocessing techniques that improved model accuracy and response consistency.</li>
+          <li>Collaborated with medical students to bridge AI-generated insights with actionable clinical guidelines.</li>
+        </ul>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-meta">
+          <div class="timeline-role">Undergraduate Researcher</div>
+          <div class="timeline-date">Sep 2025 — Dec 2025</div>
+        </div>
+        <div class="timeline-org">NEST Lab at RPI — Troy, NY</div>
+        <ul class="timeline-desc">
+          <li>Engineered sentiment analysis pipelines leveraging Hugging Face's Phi-3-Mini-4k-Instruct model to evaluate LLM performance across academic domains.</li>
+          <li>Benchmarked models for SemEval Task 3 (2025), improving dataset consistency and evaluation reproducibility.</li>
+          <li>Automated inference and analysis workflows in Python, enabling faster experiment iterations and better model tracking.</li>
+        </ul>
+      </div>
+
+      <div class="timeline-section-heading">Work</div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-meta">
+          <div class="timeline-role">Resident Assistant</div>
+          <div class="timeline-date">Jan 2026 — Present</div>
+        </div>
+        <div class="timeline-org">Rensselaer Polytechnic Institute — Troy, NY</div>
+        <ul class="timeline-desc">
+          <li>Mentor residential students and foster an inclusive, safe living environment.</li>
+          <li>Enforce university housing policies and coordinate with professional staff.</li>
+          <li>Organize community-building events to promote student engagement and well-being.</li>
+        </ul>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-meta">
+          <div class="timeline-role">Concessions Attendant</div>
+          <div class="timeline-date">Jun 2025 — Aug 2025</div>
+        </div>
+        <div class="timeline-org">City Winery Rooftop Shack — New York, NY</div>
+        <ul class="timeline-desc">
+          <li>Delivered fast, accurate service in a high-volume environment while operating POS systems and managing inventory.</li>
+          <li>Prepared espresso drinks and assisted customers with wine selections during peak hours.</li>
+        </ul>
+      </div>
+
+      <div class="timeline-section-heading">Education</div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-meta">
+          <div class="timeline-role">B.S. Computer Science &amp; Cognitive Science</div>
+          <div class="timeline-date">Aug 2024 — Present</div>
+        </div>
+        <div class="timeline-org">Rensselaer Polytechnic Institute — Troy, NY</div>
+        <ul class="timeline-desc">
+          <li>Rensselaer Medal recipient.</li>
+          <li>Relevant coursework: Computational Vision, Logic-Based AI, Mathematical Foundations of ML, Algorithms, Data Structures, Computer Organization, Intro to Cognitive Science.</li>
+        </ul>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-meta">
+          <div class="timeline-role">High School Diploma</div>
+          <div class="timeline-date">Sep 2020 — May 2024</div>
+        </div>
+        <div class="timeline-org">Xavier High School — New York, NY</div>
+        <ul class="timeline-desc">
+          <li>Silver Medal for Computers &amp; Technology; College Board Hispanic Recognition Award.</li>
+          <li>Lead Programmer, Robotics Team — 1st nationally, 3rd globally at Botball 2024.</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- ── LEADERSHIP ── -->
+<div class="section-block">
+  <section id="leadership">
+    <div class="section-header reveal">
+      <span class="section-num">06</span>
+      <h2 class="section-title">Leadership</h2>
+    </div>
+    <div class="leadership-grid reveal">
+
+      <div class="leadership-card">
+        <div class="leadership-org">Boy Scouts of America · Troop 333, Bronx, NY</div>
+        <div class="leadership-role">Eagle Scout &amp; Senior Patrol Leader</div>
+        <div class="leadership-date">September 2013 — December 2023</div>
+        <p class="leadership-desc">
+          Earned the Eagle Scout rank in December 2022. Led a clothing drive collecting
+          <strong style="color:var(--text)">1,911 items in two weeks</strong> for the Xavier Mission
+          and mentored younger scouts as Senior Patrol Leader.
+        </p>
+      </div>
+
+      <div class="leadership-card">
+        <div class="leadership-org">Rensselaer Polytechnic Institute</div>
+        <div class="leadership-role">Society of Hispanic Professional Engineers</div>
+        <div class="leadership-date">Fall 2024 — Present</div>
+        <p class="leadership-desc">
+          Member of RPI's SHPE chapter, promoting the advancement of Hispanic students in STEM
+          through networking, mentorship, and professional development events.
+        </p>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- ── CONTACT ── -->
+<div class="section-block">
+  <section id="contact">
+    <div class="section-header reveal">
+      <span class="section-num">07</span>
+      <h2 class="section-title">Contact</h2>
+    </div>
+    <div class="contact-layout reveal">
+      <div>
+        <h3 class="contact-heading">Let's<br>connect.</h3>
+        <p class="contact-sub">
+          I'm actively looking for internships and research opportunities in AI, ML, and software engineering.
+          Whether you have a question, a project idea, or just want to say hi — I'd love to hear from you.
+        </p>
+        <a href="mailto:adam.a.hernandez24@gmail.com" class="btn btn-solid">adam.a.hernandez24@gmail.com</a>
+      </div>
+      <div class="contact-links">
+        <a href="mailto:adam.a.hernandez24@gmail.com" class="contact-link">Email</a>
+        <a href="https://www.linkedin.com/in/adam-a-hernandez-ai/" target="_blank" rel="noopener noreferrer" class="contact-link">LinkedIn</a>
+        <a href="https://github.com/AdamHern/PersonalProjects" target="_blank" rel="noopener noreferrer" class="contact-link">GitHub</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <span>© 2026 Adam Hernandez</span>
+  <span>Bronx, NY · Troy, NY</span>
+</footer>
+
+<script>
+  // ── CURSOR ──
+  const cursor = document.getElementById('cursor');
+  const ring   = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.opacity = '1'; ring.style.opacity = '1';
+    cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+  });
+  document.addEventListener('mouseleave', () => { cursor.style.opacity = '0'; ring.style.opacity = '0'; });
+  document.addEventListener('mousedown', () => { cursor.classList.add('active'); ring.classList.add('active'); });
+  document.addEventListener('mouseup',   () => { cursor.classList.remove('active'); ring.classList.remove('active'); });
+
+  (function animRing() {
+    rx += (mx - rx) * 0.1;
+    ry += (my - ry) * 0.1;
+    ring.style.left = rx + 'px';
+    ring.style.top  = ry + 'px';
+    requestAnimationFrame(animRing);
+  })();
+
+  document.querySelectorAll('a, button, .skill-tag, .project-card, .cert-card, .leadership-card').forEach(el => {
+    el.addEventListener('mouseenter', () => { ring.style.width = '54px'; ring.style.height = '54px'; });
+    el.addEventListener('mouseleave', () => { ring.style.width = '32px'; ring.style.height = '32px'; });
+  });
+
+  // ── SCROLL REVEAL ──
+  const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); }
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+  // ── ACTIVE NAV ──
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-center a');
+  const navObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+        });
+      }
+    });
+  }, { threshold: 0.35 });
+  sections.forEach(s => navObserver.observe(s));
+</script>
+</body>
+</html>
